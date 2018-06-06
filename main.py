@@ -11,7 +11,7 @@ BASE = 62
 UPPERCASE_OFFSET = 55
 LOWERCASE_OFFSET = 61
 DIGIT_OFFSET = 48
-host = 'https://shortbread.herokuapp.com/r'
+host = 'https://shortbread.herokuapp.com/r/'
 
 def true_ord(char):
     """
