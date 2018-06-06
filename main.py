@@ -9,7 +9,7 @@ BASE = 62
 UPPERCASE_OFFSET = 55
 LOWERCASE_OFFSET = 61
 DIGIT_OFFSET = 48
-host = 'localhost:5000/r/'
+host = 'https://shortbread.herokuapp.com/r'
 
 def true_ord(char):
     """
