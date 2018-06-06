@@ -1,4 +1,7 @@
 from flask import Flask, request, redirect
+from flask_sqlalchemy import SQLAlchemy
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
 from urllib.parse import urlparse
 import math
 import sys
