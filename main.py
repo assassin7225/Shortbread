@@ -1,8 +1,8 @@
 from flask import Flask, request, redirect
-# import string
 from urllib.parse import urlparse
 import math
 import sys
+from dbModel import *
 
 BASE = 62
 
@@ -10,6 +10,7 @@ UPPERCASE_OFFSET = 55
 LOWERCASE_OFFSET = 61
 DIGIT_OFFSET = 48
 KEYCOUNT = 0
+host = 'https://shortbread.herokuapp.com/'
 
 def true_ord(char):
     """
@@ -75,20 +76,34 @@ def dehydrate(integer):
 
 app = Flask(__name__)
 
-@app.route('/shorten', methods=['GET'])
-def getURL():
-	# origin_url = request.args.get('url')
-	# print (dehydrate(123))
-	# return 'hi'
-	return dehydrate(123) 
+@app.route('/short', methods=['GET'])
+def short_url():
+	origin_url = request.args.get('url')
+	add_data = URLData(
+		OriginURL = origin_url,
+		ShortURL = ''
+		)
+	db.session.add(add_data)
+	db.session.flush()
+	short_url = dehydrate(add_data.id)
+	add_data.ShortURL = short_url
+
+	db.session.commit()
+
+	
+
+
+	return host+dehydrate() 
 
 @app.route('/<short_url>')
 def redirect_to_url(short_url):
-	if saturate(short_url) == 1:
-		url = 'www.google.com'
-		return redirect(url)
-	else:
+	query_id = saturate(short_url)
+	query = URLData.query.filter_by(id=query_id).first()
+
+	if query.OriginURL is None:
 		return 'we are sorry'
+	else:
+		return redirect(query.OriginURL)
 
 if __name__ == '__main__':
-	app.run()
+	app.run(debug=True)
