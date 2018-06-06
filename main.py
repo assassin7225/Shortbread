@@ -2,7 +2,6 @@ from flask import Flask, request, redirect
 from urllib.parse import urlparse
 import math
 import sys
-from dbModel import *
 
 BASE = 62
 
