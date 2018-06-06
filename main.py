@@ -9,8 +9,7 @@ BASE = 62
 UPPERCASE_OFFSET = 55
 LOWERCASE_OFFSET = 61
 DIGIT_OFFSET = 48
-KEYCOUNT = 0
-host = 'https://shortbread.herokuapp.com/'
+host = 'localhost:5000/r/'
 
 def true_ord(char):
     """
@@ -76,34 +75,64 @@ def dehydrate(integer):
 
 app = Flask(__name__)
 
+app.config[
+    'SQLALCHEMY_DATABASE_URI'] = 'postgres://pitrrzstebthsl:389430106b6333d0bb2f4d8dea6ff7c2b56f3d7e15ae61f45ac1a4ebb0fe9a55@ec2-50-19-224-165.compute-1.amazonaws.com:5432/d1g96st35na3qp'
+    # 'SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
+
+
+class URLData(db.Model):
+    __tablename__ = 'URLData'
+
+    Id = db.Column(db.Integer, primary_key=True)
+    OriginURL = db.Column(db.String(256))
+    ShortURL = db.Column(db.String(64))
+
+    def __init__(self
+                 , OriginURL
+                 , ShortURL
+                 ):
+        self.OriginURL = OriginURL
+        self.ShortURL = ShortURL
+
+
+
 @app.route('/short', methods=['GET'])
-def short_url():
+def shorten_url():
 	origin_url = request.args.get('url')
 	add_data = URLData(
 		OriginURL = origin_url,
-		ShortURL = ''
+		ShortURL = 'short'
 		)
 	db.session.add(add_data)
 	db.session.flush()
-	short_url = dehydrate(add_data.id)
+	short_url = dehydrate(add_data.Id)
 	add_data.ShortURL = short_url
 
 	db.session.commit()
 
-	
+	return host+short_url 
 
-
-	return host+dehydrate() 
-
-@app.route('/<short_url>')
+@app.route('/r/<short_url>')
 def redirect_to_url(short_url):
+
+	# print('redirect_to_url(%d)%s'%(len(short_url), short_url))
 	query_id = saturate(short_url)
-	query = URLData.query.filter_by(id=query_id).first()
+	
+	query = URLData.query.filter_by(Id=query_id).first()
 
 	if query.OriginURL is None:
 		return 'we are sorry'
 	else:
-		return redirect(query.OriginURL)
+		# queryURL='http://'+query.OriginURL
+		return redirect('http://'+query.OriginURL)
+		# return redirect('www.google.com')
 
 if __name__ == '__main__':
 	app.run(debug=True)
+	manager.run()
